@@ -6,6 +6,9 @@ import os
 import commands
 import subprocess
 
+import pika
+
+
 GPIO.setmode(GPIO.BCM)
 
 #GPIO.setup(24, GPIO.IN, pull_up_dwon=GPIO.PUD_DOWN)
@@ -34,6 +37,23 @@ def my_callback(channel):
     #print commands.getstatusoutput('electron .')
     global ledStatus 
     ledStatus = ledStatus + 1
+    parameters = pika.URLParameters('amqp://hardchain:pswHd@localhost:5672/%2F')
+    
+    connection = pika.BlockingConnection(parameters)
+    channelr = connection.channel()
+    #声明queue
+    channelr.queue_declare(queue='electron', durable=True)  # 若声明过，则换一个名字
+    #n RabbitMQ a message can never be sent directly to the queue, it always needs to go through an exchange.
+    channelr.basic_publish(exchange='',
+                          routing_key='electron',
+                          body='Hello World!',
+                          properties=pika.BasicProperties(
+                              delivery_mode=2,  # make message persistent
+                              )
+                          )
+    
+    print(" [x] Sent 'Hello World!'")
+    connection.close()
     pass
     #subprocess.call(['electron','.'],shell=True)
 
