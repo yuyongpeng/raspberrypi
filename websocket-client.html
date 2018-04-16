@@ -12,6 +12,11 @@
     ws.onopen = function (e) {
         console.log('Connection to server opened');
     }
+    ws.onmessage = function(event){
+        var data = event.data;
+        alert(data)
+        console.log(data)
+    }
     function sendMessage() {
         ws.send('fffffff');
         //ws.send($('#message').val());
